@@ -132,6 +132,43 @@ textarea {
 }
 .toolbar input[type="search"] { min-width: 240px; }
 
+.input-clear {
+  position: relative;
+  display: flex;
+  min-width: 0;
+}
+.input-clear input {
+  width: 100%;
+  padding-right: 34px;
+}
+/* Hide the browser's native search reset so the button below is the only one. */
+.input-clear input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+.input-clear__btn {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #5c6b80;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.input-clear__btn:hover {
+  background: #e8f1ff;
+  color: #243044;
+}
+
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 58%) minmax(0, 42%);
