@@ -9,9 +9,11 @@ interface ContactsPanelProps {
   query: string
   status: string
   busy: boolean
+  refreshing: boolean
   statusChoices: StatusChoice[]
   onSelect: (contactId: number, event: MouseEvent<HTMLAnchorElement>) => void
   onCreate: (values: Record<string, string>) => Promise<void>
+  creating: boolean
 }
 
 export function ContactsPanel({
@@ -20,14 +22,16 @@ export function ContactsPanel({
   query,
   status,
   busy,
+  refreshing,
   statusChoices,
   onSelect,
   onCreate,
+  creating,
 }: ContactsPanelProps) {
   return (
     <section className="panel" aria-labelledby="contacts-heading">
       <h2 id="contacts-heading">Contacts</h2>
-      <div className="list" aria-busy={busy ? 'true' : 'false'}>
+      <div className="list" aria-busy={busy || refreshing ? 'true' : 'false'}>
         {contacts.length === 0 ? (
           <p className="empty" role="status">
             {busy ? 'Loading contacts…' : 'No contacts match your filters.'}
@@ -45,7 +49,11 @@ export function ContactsPanel({
           ))
         )}
       </div>
-      <NewContactForm statusChoices={statusChoices} onCreate={onCreate} />
+      <NewContactForm
+        statusChoices={statusChoices}
+        onCreate={onCreate}
+        pending={creating}
+      />
     </section>
   )
 }

@@ -66,6 +66,10 @@ export function initialData(): InitialData {
     detail,
     serverError: server.error ?? '',
     hasEmbeddedPayload,
+    initialQ: server.q ?? '',
+    initialStatus: server.status ?? '',
+    initialContactId: detail ? String(detail.contact.id) : '',
+    bootedAt: Date.now(),
   }
 }
 

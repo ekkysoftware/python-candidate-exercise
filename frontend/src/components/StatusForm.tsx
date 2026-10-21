@@ -8,27 +8,25 @@ interface StatusFormProps {
   contact: Contact
   statusChoices: StatusChoice[]
   onSave: (newStatus: string) => Promise<void>
+  pending: boolean
 }
 
 export function StatusForm({
   contact,
   statusChoices,
   onSave,
+  pending,
 }: StatusFormProps) {
-  const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
-    setPending(true)
     setError('')
     try {
       await onSave(String(data.get('new_status') ?? ''))
     } catch (err) {
       setError(errorMessage(err, 'Could not update the status.'))
-    } finally {
-      setPending(false)
     }
   }
 

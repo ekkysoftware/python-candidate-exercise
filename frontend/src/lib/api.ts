@@ -1,10 +1,16 @@
 export class ApiError extends Error {
   readonly fieldErrors: Record<string, string> | null
+  readonly status: number
 
-  constructor(message: string, fieldErrors?: Record<string, string> | null) {
+  constructor(
+    message: string,
+    fieldErrors?: Record<string, string> | null,
+    status = 0,
+  ) {
     super(message)
     this.name = 'ApiError'
     this.fieldErrors = fieldErrors ?? null
+    this.status = status
   }
 }
 
@@ -69,6 +75,7 @@ export async function request<T = unknown>(
     throw new ApiError(
       body.error || body.detail || 'Request failed (' + response.status + ').',
       body.errors,
+      response.status,
     )
   }
 
@@ -77,4 +84,13 @@ export async function request<T = unknown>(
 
 export function errorMessage(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback
+}
+
+/** True for 4xx responses, which retrying cannot fix. */
+export function isClientError(error: unknown): boolean {
+  return (
+    error instanceof ApiError &&
+    error.status >= 400 &&
+    error.status < 500
+  )
 }
