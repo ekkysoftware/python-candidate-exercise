@@ -11,6 +11,9 @@ interface ContactDetailProps {
   onChangeStatus: (newStatus: string) => Promise<void>
   onAddNote: (note: string) => Promise<void>
   onDelete: () => Promise<void>
+  statusPending: boolean
+  notePending: boolean
+  deletePending: boolean
 }
 
 export function ContactDetail({
@@ -19,6 +22,9 @@ export function ContactDetail({
   onChangeStatus,
   onAddNote,
   onDelete,
+  statusPending,
+  notePending,
+  deletePending,
 }: ContactDetailProps) {
   const contact = detail.contact
 
@@ -41,9 +47,14 @@ export function ContactDetail({
         contact={contact}
         statusChoices={statusChoices}
         onSave={onChangeStatus}
+        pending={statusPending}
       />
-      <NoteForm onSave={onAddNote} />
-      <DeleteAction contact={contact} onDelete={onDelete} />
+      <NoteForm onSave={onAddNote} pending={notePending} />
+      <DeleteAction
+        contact={contact}
+        onDelete={onDelete}
+        pending={deletePending}
+      />
       <h4>Activity</h4>
       <ActivityFeed activities={detail.activities} />
     </div>

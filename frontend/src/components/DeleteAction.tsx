@@ -5,10 +5,10 @@ import type { Contact } from '../types'
 interface DeleteActionProps {
   contact: Contact
   onDelete: () => Promise<void>
+  pending: boolean
 }
 
-export function DeleteAction({ contact, onDelete }: DeleteActionProps) {
-  const [pending, setPending] = useState(false)
+export function DeleteAction({ contact, onDelete, pending }: DeleteActionProps) {
   const [error, setError] = useState('')
 
   async function handleClick() {
@@ -17,14 +17,11 @@ export function DeleteAction({ contact, onDelete }: DeleteActionProps) {
     )
     if (!confirmed) return
 
-    setPending(true)
     setError('')
     try {
       await onDelete()
     } catch (err) {
       setError(errorMessage(err, 'Could not delete the contact.'))
-    } finally {
-      setPending(false)
     }
   }
 

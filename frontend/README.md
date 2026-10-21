@@ -1,5 +1,24 @@
 # React + TypeScript + Vite
 
+## CRM data layer
+
+The CRM screen uses `@tanstack/react-query` v5 for server-state caching,
+revalidation, and mutation propagation. See [REACT_QUERY.md](../REACT_QUERY.md)
+for an overview and the trade-offs of this approach.
+
+Use the v5 API conventions in this project: object-form `useQuery`/
+`useMutation`, `gcTime` (not `cacheTime`), and `isPending` (not `isLoading`)
+for foreground state. Devtools load only under `import.meta.env.DEV`.
+
+Commands:
+
+```bash
+npm install
+npm run dev    # Vite dev server with the Django API proxy
+npm run build  # tsc -b + production build into crm/static/crm/dist
+npm run lint
+```
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:

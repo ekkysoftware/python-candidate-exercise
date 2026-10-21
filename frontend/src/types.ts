@@ -59,4 +59,8 @@ export interface InitialData {
   detail: Detail | null
   serverError: string
   hasEmbeddedPayload: boolean
+  initialQ: string
+  initialStatus: string
+  initialContactId: string
+  bootedAt: number
 }

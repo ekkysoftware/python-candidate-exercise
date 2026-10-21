@@ -7,14 +7,15 @@ import type { StatusChoice } from '../types'
 interface NewContactFormProps {
   statusChoices: StatusChoice[]
   onCreate: (values: Record<string, string>) => Promise<void>
+  pending: boolean
 }
 
 export function NewContactForm({
   statusChoices,
   onCreate,
+  pending,
 }: NewContactFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [pending, setPending] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -25,7 +26,6 @@ export function NewContactForm({
       if (typeof value === 'string') values[key] = value
     })
 
-    setPending(true)
     setErrors({})
     try {
       await onCreate(values)
@@ -42,8 +42,6 @@ export function NewContactForm({
           ?.querySelector<HTMLInputElement>(`[name="${first}"]`)
           ?.focus()
       }
-    } finally {
-      setPending(false)
     }
   }
 

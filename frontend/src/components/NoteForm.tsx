@@ -5,11 +5,11 @@ import { Field } from './Field'
 
 interface NoteFormProps {
   onSave: (note: string) => Promise<void>
+  pending: boolean
 }
 
-export function NoteForm({ onSave }: NoteFormProps) {
+export function NoteForm({ onSave, pending }: NoteFormProps) {
   const [note, setNote] = useState('')
-  const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
   const noteRef = useRef<HTMLTextAreaElement>(null)
 
@@ -22,15 +22,12 @@ export function NoteForm({ onSave }: NoteFormProps) {
       return
     }
 
-    setPending(true)
     setError('')
     try {
       await onSave(body)
       setNote('')
     } catch (err) {
       setError(errorMessage(err, 'Could not save the note.'))
-    } finally {
-      setPending(false)
     }
   }
 

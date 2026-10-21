@@ -8,6 +8,9 @@ interface DetailPanelProps {
   onChangeStatus: (newStatus: string) => Promise<void>
   onAddNote: (note: string) => Promise<void>
   onDelete: () => Promise<void>
+  statusPending: boolean
+  notePending: boolean
+  deletePending: boolean
 }
 
 export function DetailPanel({
@@ -17,6 +20,9 @@ export function DetailPanel({
   onChangeStatus,
   onAddNote,
   onDelete,
+  statusPending,
+  notePending,
+  deletePending,
 }: DetailPanelProps) {
   return (
     <section className="panel" aria-labelledby="detail-heading">
@@ -29,6 +35,9 @@ export function DetailPanel({
           onChangeStatus={onChangeStatus}
           onAddNote={onAddNote}
           onDelete={onDelete}
+          statusPending={statusPending}
+          notePending={notePending}
+          deletePending={deletePending}
         />
       ) : (
         <p className="muted" role="status">
