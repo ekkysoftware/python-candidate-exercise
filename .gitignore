@@ -19,3 +19,4 @@ staticfiles/
 
 # Vite build output served by Django
 crm/static/crm/dist/
+.pi/APPEND_SYSTEM.md
