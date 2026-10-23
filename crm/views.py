@@ -1,6 +1,7 @@
 import csv
 import json
 
+from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods, require_POST
@@ -37,6 +38,7 @@ def create_contact_view(request):
         value=form.cleaned_data["value"],
         status=form.cleaned_data["new_status"],
     )
+    messages.success(request, f"Created {contact.name}")
     return redirect(return_url(q, status, contact.id))
 
 
@@ -52,6 +54,7 @@ def update_contact_status(request, pk):
         return redirect(return_url(q, status, contact.id))
 
     change_status(contact=contact, new_status=form.cleaned_data["new_status"])
+    messages.success(request, f"Status changed to {contact.status}")
     return redirect(return_url(q, status, contact.id))
 
 
@@ -62,8 +65,9 @@ def add_contact_note(request, pk):
     q, status = _filters(request, data)
 
     form = NoteForm(data)
-    if form.is_valid():
+    if form.is_valid() and form.cleaned_data["note"]:
         add_note(contact=contact, body=form.cleaned_data["note"])
+        messages.success(request, "Note added")
     return redirect(return_url(q, status, contact.id))
 
 
@@ -73,6 +77,7 @@ def delete_contact_view(request, pk):
     q, status = _filters(request, _payload(request))
 
     delete_contact(contact=contact)
+    messages.success(request, "Contact deleted")
     return redirect(return_url(q, status))
 
 

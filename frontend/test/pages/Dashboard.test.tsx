@@ -10,7 +10,7 @@ import { usePage } from '../mocks/inertia'
 describe('Dashboard page', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    usePage.mockReturnValue({ props: { errors: {} } })
+    usePage.mockReturnValue({ props: { errors: {} }, flash: { messages: [] } })
   })
 
   it('renders the screen from page props', () => {
@@ -27,10 +27,38 @@ describe('Dashboard page', () => {
   })
 
   it('renders shared validation errors as a banner', () => {
-    usePage.mockReturnValue({ props: { errors: { name: 'Name is required' } } })
+    usePage.mockReturnValue({
+      props: { errors: { name: 'Name is required' } },
+      flash: { messages: [] },
+    })
 
     render(<Dashboard {...dashboardProps} />)
 
     expect(screen.getByText('Name is required')).toBeInTheDocument()
+  })
+
+  it('renders flash messages as toasts', () => {
+    usePage.mockReturnValue({
+      props: { errors: {} },
+      flash: { messages: [{ level: 'success', message: 'Contact deleted' }] },
+    })
+
+    render(<Dashboard {...dashboardProps} />)
+
+    expect(screen.getByRole('status')).toHaveTextContent('Contact deleted')
+  })
+
+  it('renders no toast when flash data is absent or empty', () => {
+    usePage.mockReturnValue({ props: { errors: {} } })
+    const { container, rerender } = render(<Dashboard {...dashboardProps} />)
+
+    expect(container.querySelector('.toast')).toBeNull()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+
+    usePage.mockReturnValue({ props: { errors: {} }, flash: { messages: [] } })
+    rerender(<Dashboard {...dashboardProps} />)
+
+    expect(container.querySelector('.toast')).toBeNull()
   })
 })

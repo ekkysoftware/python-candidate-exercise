@@ -1,6 +1,8 @@
 import type { AnchorHTMLAttributes, FormHTMLAttributes, ReactNode } from 'react'
 import { vi } from 'vitest'
 
+import type { FlashMessage } from '../../src/types'
+
 export const router = {
   get: vi.fn(),
   post: vi.fn(),
@@ -9,7 +11,12 @@ export const router = {
   visit: vi.fn(),
 }
 
-export const usePage = vi.fn(() => ({ props: { errors: {} } }))
+export const usePage = vi.fn(
+  (): {
+    props: { errors: Record<string, string> }
+    flash?: { messages?: FlashMessage[] }
+  } => ({ props: { errors: {} }, flash: { messages: [] } }),
+)
 export const createInertiaApp = vi.fn()
 
 export function Link({

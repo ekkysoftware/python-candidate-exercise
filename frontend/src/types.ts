@@ -59,10 +59,20 @@ export interface DashboardProps {
   statusChoices: StatusChoice[]
 }
 
+export type FlashLevel = 'debug' | 'info' | 'success' | 'warning' | 'error'
+
+export interface FlashMessage {
+  level: FlashLevel
+  message: string
+}
+
 declare module '@inertiajs/core' {
   export interface InertiaConfig {
     sharedPageProps: {
       errors?: Record<string, string>
+    }
+    flashDataType: {
+      messages?: FlashMessage[]
     }
   }
 }

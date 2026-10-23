@@ -48,6 +48,9 @@ class CommandTestCase(InertiaTestCase):
             follow=follow,
         )
 
+    def flash_messages(self):
+        return self.page().get("flash", {}).get("messages", [])
+
 
 class CreateContactTests(CommandTestCase):
     def test_valid_creation_stores_contact_and_system_activity(self):
@@ -66,6 +69,7 @@ class CreateContactTests(CommandTestCase):
 
         self.assertEqual(self.props()["errors"]["name"], "Name is required")
         self.assertFalse(Contact.objects.filter(name="").exists())
+        self.assertNotIn("flash", self.page())
 
     def test_errors_are_consumed_after_one_response(self):
         self.create_contact(name="", follow=True)
@@ -88,6 +92,15 @@ class CreateContactTests(CommandTestCase):
         contact = Contact.objects.get(name="Fresh")
         self.assertEqual(response["Location"], f"/?contact={contact.id}")
 
+    def test_success_flash_names_the_contact(self):
+        self.create_contact(name="New Person", follow=True)
+
+        self.assertEqual(
+            self.flash_messages(),
+            [{"level": "success", "message": "Created New Person"}],
+        )
+        self.assertNotIn("flash", self.props())
+
 
 class StatusChangeTests(CommandTestCase):
     def test_change_status(self):
@@ -108,10 +121,19 @@ class StatusChangeTests(CommandTestCase):
         self.contact.refresh_from_db()
         self.assertEqual(self.contact.status, "lead")
         self.assertIn("new_status", self.props()["errors"])
+        self.assertNotIn("flash", self.page())
 
     def test_unknown_contact_is_not_found(self):
         response = self.patch_status(999999, new_status="qualified")
         self.assertEqual(response.status_code, 404)
+
+    def test_success_flash_reports_the_new_status(self):
+        self.patch_status(self.contact.id, new_status="qualified", follow=True)
+
+        self.assertEqual(
+            self.flash_messages(),
+            [{"level": "success", "message": "Status changed to qualified"}],
+        )
 
 
 class AddNoteTests(CommandTestCase):
@@ -124,6 +146,14 @@ class AddNoteTests(CommandTestCase):
     def test_blank_note_creates_no_activity(self):
         self.add_note(self.contact.id, note="   ")
         self.assertFalse(Activity.objects.filter(contact=self.contact).exists())
+
+    def test_success_flash_confirms_the_note(self):
+        self.add_note(self.contact.id, note="Called customer", follow=True)
+
+        self.assertEqual(
+            self.flash_messages(),
+            [{"level": "success", "message": "Note added"}],
+        )
 
     def test_unknown_contact_is_not_found(self):
         response = self.add_note(999999, note="Nope")
@@ -150,7 +180,18 @@ class DeleteContactTests(CommandTestCase):
 
     def test_unknown_contact_is_not_found(self):
         response = self.delete_contact(999999)
+
         self.assertEqual(response.status_code, 404)
+        self.inertia.get(reverse("crm"))
+        self.assertNotIn("flash", self.page())
+
+    def test_success_flash_confirms_the_delete(self):
+        self.delete_contact(self.contact.id, follow=True)
+
+        self.assertEqual(
+            self.flash_messages(),
+            [{"level": "success", "message": "Contact deleted"}],
+        )
 
 
 class FilterRestorationTests(CommandTestCase):
@@ -177,6 +218,33 @@ class FilterRestorationTests(CommandTestCase):
         props = self.props()
         self.assertEqual(props["filters"], {"q": "Ekky", "status": "lead"})
         self.assertEqual(props["selected"]["id"], self.contact.id)
+
+
+class FlashDeliveryTests(CommandTestCase):
+    def test_confirmation_is_consumed_after_one_response(self):
+        self.create_contact(name="Once", follow=True)
+        self.assertEqual(
+            self.flash_messages(),
+            [{"level": "success", "message": "Created Once"}],
+        )
+
+        self.inertia.get(reverse("crm"))
+        self.assertNotIn("flash", self.page())
+
+    def test_confirmation_is_delivered_on_a_partial_reload(self):
+        self.create_contact(name="Partial Person")
+
+        self.inertia.get(
+            reverse("crm"),
+            HTTP_X_INERTIA_PARTIAL_DATA="contacts",
+            HTTP_X_INERTIA_PARTIAL_COMPONENT="crm/Dashboard",
+        )
+
+        self.assertEqual(
+            self.flash_messages(),
+            [{"level": "success", "message": "Created Partial Person"}],
+        )
+        self.assertNotIn("flash", self.props())
 
 
 class LegacyDispatchRemovedTests(CommandTestCase):
