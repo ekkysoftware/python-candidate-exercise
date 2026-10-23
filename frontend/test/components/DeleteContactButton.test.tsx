@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@inertiajs/react', async () => await import('../mocks/inertia'))
 
-import DeleteContactButton from '../../src/components/DeleteContactButton'
+import DeleteContactButton from '@/components/DeleteContactButton'
 import { filters } from '../fixtures'
 import { router } from '../mocks/inertia'
 

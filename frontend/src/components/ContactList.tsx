@@ -1,6 +1,6 @@
-import type { ContactRow as ContactRowData, DashboardFilters, StatusChoice } from '../types'
-import ContactRow from './ContactRow'
-import NewContactForm from './NewContactForm'
+import type { ContactRow as ContactRowData, DashboardFilters, StatusChoice } from '@/types'
+import ContactRow from '@/components/ContactRow'
+import NewContactForm from '@/components/NewContactForm'
 
 interface ContactListProps {
   contacts: ContactRowData[]

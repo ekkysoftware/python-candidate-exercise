@@ -1,51 +1,51 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@inertiajs/react', async () => await import('../mocks/inertia'))
+vi.mock('@inertiajs/core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@inertiajs/core')>()
+  return {
+    ...actual,
+    router: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
+  }
+})
 
-import NewContactForm from '../../src/components/NewContactForm'
-import NoteForm from '../../src/components/NoteForm'
-import StatusForm from '../../src/components/StatusForm'
+import { router } from '@inertiajs/core'
+import NewContactForm from '@/components/NewContactForm'
+import NoteForm from '@/components/NoteForm'
+import StatusForm from '@/components/StatusForm'
 import { filters, statusChoices } from '../fixtures'
-import { makeForm, useForm } from '../mocks/inertia'
 
-const contactFormData = {
-  name: '',
-  email: '',
-  company: '',
-  owner: '',
-  phone: '',
-  value: '',
-  new_status: 'lead',
-}
+const newContactFilters = { q: 'alt', status: 'lead' }
 
 describe('NewContactForm', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('posts the payload to the create endpoint with the active filters', () => {
-    const form = makeForm({ data: contactFormData })
-    useForm.mockReturnValue(form)
+  it('posts the entered contact to the create endpoint with the active filters', async () => {
+    const user = userEvent.setup()
+    render(<NewContactForm filters={newContactFilters} statusChoices={statusChoices} />)
 
-    const { container } = render(
-      <NewContactForm filters={{ q: 'alt', status: 'lead' }} statusChoices={statusChoices} />,
-    )
-    container.querySelector('form')?.requestSubmit()
+    await user.type(screen.getByPlaceholderText('Name'), 'Ekky')
+    await user.click(screen.getByRole('button', { name: 'Add' }))
 
-    expect(form.transform).toHaveBeenCalled()
-    expect(form.post).toHaveBeenCalledWith(
+    expect(router.post).toHaveBeenCalledWith(
       '/contacts/',
+      expect.objectContaining({ name: 'Ekky', new_status: 'lead', q: 'alt', status: 'lead' }),
       expect.objectContaining({ preserveScroll: true }),
     )
   })
 
-  it('shows the server error and disables submit while processing', () => {
-    useForm.mockReturnValue(
-      makeForm({ data: contactFormData, errors: { name: 'Name is required' }, processing: true }),
-    )
+  it('shows the server error and disables submit while processing', async () => {
+    const user = userEvent.setup()
+    vi.mocked(router.post).mockImplementationOnce((_url, _data, options) => {
+      options?.onStart?.({} as never)
+      options?.onError?.({ name: 'Name is required' })
+    })
 
     render(<NewContactForm filters={filters} statusChoices={statusChoices} />)
+    await user.click(screen.getByRole('button', { name: 'Add' }))
 
     expect(screen.getByText('Name is required')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled()
@@ -57,11 +57,9 @@ describe('StatusForm', () => {
     vi.clearAllMocks()
   })
 
-  it('patches the status endpoint for the selected contact', () => {
-    const form = makeForm({ data: { new_status: 'lead' } })
-    useForm.mockReturnValue(form)
-
-    const { container } = render(
+  it('patches the status endpoint for the selected contact', async () => {
+    const user = userEvent.setup()
+    render(
       <StatusForm
         contactId={7}
         currentStatus="lead"
@@ -69,21 +67,22 @@ describe('StatusForm', () => {
         statusChoices={statusChoices}
       />,
     )
-    container.querySelector('form')?.requestSubmit()
 
-    expect(form.patch).toHaveBeenCalledWith(
+    await user.selectOptions(screen.getByRole('combobox'), 'customer')
+    await user.click(screen.getByRole('button', { name: 'Update status' }))
+
+    expect(router.patch).toHaveBeenCalledWith(
       '/contacts/7/status/',
+      expect.objectContaining({ new_status: 'customer', q: '', status: '' }),
       expect.objectContaining({ preserveScroll: true }),
     )
   })
 
-  it('shows a validation error for the status field', () => {
-    useForm.mockReturnValue(
-      makeForm({
-        data: { new_status: 'lead' },
-        errors: { new_status: 'Select a valid choice.' },
-      }),
-    )
+  it('shows a validation error for the status field', async () => {
+    const user = userEvent.setup()
+    vi.mocked(router.patch).mockImplementationOnce((_url, _data, options) => {
+      options?.onError?.({ new_status: 'Select a valid choice.' })
+    })
 
     render(
       <StatusForm
@@ -93,6 +92,7 @@ describe('StatusForm', () => {
         statusChoices={statusChoices}
       />,
     )
+    await user.click(screen.getByRole('button', { name: 'Update status' }))
 
     expect(screen.getByText('Select a valid choice.')).toBeInTheDocument()
   })
@@ -103,15 +103,16 @@ describe('NoteForm', () => {
     vi.clearAllMocks()
   })
 
-  it('posts the note to the contact notes endpoint', () => {
-    const form = makeForm({ data: { note: '' } })
-    useForm.mockReturnValue(form)
+  it('posts the note to the contact notes endpoint', async () => {
+    const user = userEvent.setup()
+    render(<NoteForm contactId={3} filters={filters} />)
 
-    const { container } = render(<NoteForm contactId={3} filters={filters} />)
-    container.querySelector('form')?.requestSubmit()
+    await user.type(screen.getByPlaceholderText('Add a note'), 'Called back')
+    await user.click(screen.getByRole('button', { name: 'Save note' }))
 
-    expect(form.post).toHaveBeenCalledWith(
+    expect(router.post).toHaveBeenCalledWith(
       '/contacts/3/notes/',
+      expect.objectContaining({ note: 'Called back' }),
       expect.objectContaining({ preserveScroll: true }),
     )
   })

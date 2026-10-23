@@ -1,6 +1,6 @@
 import { createInertiaApp, type ResolvedComponent } from '@inertiajs/react'
 
-import './styles/app.css'
+import '@/styles/app.css'
 
 type PageModule = { default: ResolvedComponent }
 

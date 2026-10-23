@@ -1,10 +1,10 @@
 import { usePage } from '@inertiajs/react'
 
-import ContactDetail from '../../components/ContactDetail'
-import ContactList from '../../components/ContactList'
-import StatsRow from '../../components/StatsRow'
-import Toolbar from '../../components/Toolbar'
-import type { DashboardProps } from '../../types'
+import ContactDetail from '@/components/ContactDetail'
+import ContactList from '@/components/ContactList'
+import StatsRow from '@/components/StatsRow'
+import Toolbar from '@/components/Toolbar'
+import type { DashboardProps } from '@/types'
 
 export default function Dashboard({
   contacts,

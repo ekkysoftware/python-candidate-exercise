@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react'
 
-import type { DashboardFilters } from '../types'
+import type { DashboardFilters } from '@/types'
 
 interface DeleteContactButtonProps {
   contactId: number

@@ -1,7 +1,6 @@
-import { useForm } from '@inertiajs/react'
-import type { FormEvent } from 'react'
+import { Form } from '@inertiajs/react'
 
-import type { DashboardFilters } from '../types'
+import type { DashboardFilters } from '@/types'
 
 interface NoteFormProps {
   contactId: number
@@ -9,29 +8,22 @@ interface NoteFormProps {
 }
 
 export default function NoteForm({ contactId, filters }: NoteFormProps) {
-  const form = useForm({ note: '' })
-
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    form.transform((data) => ({ ...data, q: filters.q, status: filters.status }))
-    form.post(`/contacts/${contactId}/notes/`, {
-      preserveScroll: true,
-      onSuccess: () => form.reset(),
-    })
-  }
-
   return (
-    <form onSubmit={submit}>
-      <textarea
-        name="note"
-        placeholder="Add a note"
-        value={form.data.note}
-        onChange={(event) => form.setData('note', event.target.value)}
-      />
-      <button className="btn" disabled={form.processing}>
-        Save note
-      </button>
-    </form>
+    <Form
+      action={`/contacts/${contactId}/notes/`}
+      method="post"
+      transform={(data) => ({ ...data, q: filters.q, status: filters.status })}
+      options={{ preserveScroll: true }}
+      resetOnSuccess
+    >
+      {({ processing }) => (
+        <>
+          <textarea name="note" placeholder="Add a note" />
+          <button className="btn" disabled={processing}>
+            Save note
+          </button>
+        </>
+      )}
+    </Form>
   )
 }

@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react'
 
-import { formatCurrency } from '../lib/format'
-import type { ContactRow as ContactRowData } from '../types'
+import { formatCurrency } from '@/lib/format'
+import type { ContactRow as ContactRowData } from '@/types'
 
 interface ContactRowProps {
   contact: ContactRowData

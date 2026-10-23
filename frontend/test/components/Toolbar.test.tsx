@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@inertiajs/react', async () => await import('../mocks/inertia'))
 
-import Toolbar from '../../src/components/Toolbar'
+import Toolbar from '@/components/Toolbar'
 import { statusChoices } from '../fixtures'
 import { router } from '../mocks/inertia'
 

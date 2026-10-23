@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@inertiajs/react', async () => await import('../mocks/inertia'))
 
-import ContactRow from '../../src/components/ContactRow'
+import ContactRow from '@/components/ContactRow'
 import { contactRow } from '../fixtures'
 
 describe('ContactRow', () => {

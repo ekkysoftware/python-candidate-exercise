@@ -1,4 +1,4 @@
-import type { AnchorHTMLAttributes, ReactNode } from 'react'
+import type { AnchorHTMLAttributes, FormHTMLAttributes, ReactNode } from 'react'
 import { vi } from 'vitest'
 
 export const router = {
@@ -10,7 +10,6 @@ export const router = {
 }
 
 export const usePage = vi.fn(() => ({ props: { errors: {} } }))
-export const useForm = vi.fn()
 export const createInertiaApp = vi.fn()
 
 export function Link({
@@ -25,19 +24,20 @@ export function Link({
   )
 }
 
-export function makeForm(overrides: Record<string, unknown> = {}) {
-  const form: Record<string, unknown> = {
-    data: {},
-    setData: vi.fn(),
-    transform: vi.fn(),
-    post: vi.fn(),
-    patch: vi.fn(),
-    delete: vi.fn(),
-    reset: vi.fn(),
-    processing: false,
-    errors: {},
-    ...overrides,
-  }
-  ;(form.transform as ReturnType<typeof vi.fn>).mockImplementation(() => form)
-  return form
+// Stand-in for Inertia's <Form> that only renders its children, so tests that
+// mock the adapter wholesale can still mount components that use it.
+export function Form({
+  children,
+  transform: _transform,
+  options: _options,
+  resetOnSuccess: _resetOnSuccess,
+  ...rest
+}: {
+  children: ReactNode | ((props: Record<string, unknown>) => ReactNode)
+  transform?: unknown
+  options?: unknown
+  resetOnSuccess?: unknown
+} & FormHTMLAttributes<HTMLFormElement>) {
+  const state = { errors: {}, processing: false }
+  return <form {...rest}>{typeof children === 'function' ? children(state) : children}</form>
 }

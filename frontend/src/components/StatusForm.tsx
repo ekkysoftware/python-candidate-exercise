@@ -1,7 +1,6 @@
-import { useForm } from '@inertiajs/react'
-import { useEffect, type FormEvent } from 'react'
+import { Form } from '@inertiajs/react'
 
-import type { ContactStatus, DashboardFilters, StatusChoice } from '../types'
+import type { ContactStatus, DashboardFilters, StatusChoice } from '@/types'
 
 interface StatusFormProps {
   contactId: number
@@ -16,37 +15,29 @@ export default function StatusForm({
   filters,
   statusChoices,
 }: StatusFormProps) {
-  const form = useForm({ new_status: currentStatus })
-
-  useEffect(() => {
-    form.setData('new_status', currentStatus)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contactId])
-
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    form.transform((data) => ({ ...data, q: filters.q, status: filters.status }))
-    form.patch(`/contacts/${contactId}/status/`, { preserveScroll: true })
-  }
-
   return (
-    <form onSubmit={submit}>
-      <select
-        name="new_status"
-        value={form.data.new_status}
-        onChange={(event) => form.setData('new_status', event.target.value as ContactStatus)}
-      >
-        {statusChoices.map((choice) => (
-          <option key={choice.value} value={choice.value}>
-            {choice.label}
-          </option>
-        ))}
-      </select>
-      <button className="btn" disabled={form.processing}>
-        Update status
-      </button>
-      {form.errors.new_status && <div className="error">{form.errors.new_status}</div>}
-    </form>
+    <Form
+      action={`/contacts/${contactId}/status/`}
+      method="patch"
+      transform={(data) => ({ ...data, q: filters.q, status: filters.status })}
+      options={{ preserveScroll: true }}
+    >
+      {({ errors, processing }) => (
+        <>
+          {/* Keyed on the contact so the uncontrolled select picks up the new status. */}
+          <select name="new_status" key={contactId} defaultValue={currentStatus}>
+            {statusChoices.map((choice) => (
+              <option key={choice.value} value={choice.value}>
+                {choice.label}
+              </option>
+            ))}
+          </select>
+          <button className="btn" disabled={processing}>
+            Update status
+          </button>
+          {errors.new_status && <div className="error">{errors.new_status}</div>}
+        </>
+      )}
+    </Form>
   )
 }

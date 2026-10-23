@@ -1,4 +1,5 @@
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 
 // Django mounts `frontend/dist` as `crm` static (settings.STATICFILES_DIRS) and
@@ -6,6 +7,11 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   base: '/static/crm/',
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
   server: {
     port: 5173,
     strictPort: true,

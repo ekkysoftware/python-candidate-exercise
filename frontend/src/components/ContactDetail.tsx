@@ -1,8 +1,8 @@
-import { formatCurrency } from '../lib/format'
-import type { ContactDetail as ContactDetailData, DashboardFilters, StatusChoice } from '../types'
-import DeleteContactButton from './DeleteContactButton'
-import NoteForm from './NoteForm'
-import StatusForm from './StatusForm'
+import { formatCurrency } from '@/lib/format'
+import type { ContactDetail as ContactDetailData, DashboardFilters, StatusChoice } from '@/types'
+import DeleteContactButton from '@/components/DeleteContactButton'
+import NoteForm from '@/components/NoteForm'
+import StatusForm from '@/components/StatusForm'
 
 interface ContactDetailProps {
   selected: ContactDetailData | null

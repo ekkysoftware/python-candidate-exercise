@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react'
 import { useState, type FormEvent } from 'react'
 
-import type { DashboardFilters, StatusChoice } from '../types'
+import type { DashboardFilters, StatusChoice } from '@/types'
 
 interface ToolbarProps {
   filters: DashboardFilters
